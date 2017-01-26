@@ -212,7 +212,7 @@
         <div class="span12">
             <div class="widget-box">
                 <div class="widget-title">
-		            <h5>
+                    <h5>
                         <asp:Label ID="lblAgregar" runat="server" meta:resourcekey="lblAgregar"></asp:Label>
                         <asp:Label ID="lblEditar" runat="server" meta:resourcekey="lblEditar" Visible="false"></asp:Label>
                     </h5>                    
@@ -1592,7 +1592,7 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label class="control-label" for="rauDNI">Imagen de DNI</label>
+                                        <label id="lblImagenDNI" runat="server" class="control-label" for="rauDNI">Imagen de DNI</label>
                                         <div class="controls">
                                             <telerik:RadAsyncUpload ID="rauDNI" runat="server" AllowedFileExtensions="doc,docx,pdf,jpg,png,bmp" AutoAddFileInputs="False" OnClientValidationFailed="validationFailed" OnClientFileUploading="validationOk" TemporaryFileExpiration="05:00:00">
                                                 <Localization Select="Examinar..." Cancel="Cancelar" Remove="Eliminar" />
@@ -1608,13 +1608,13 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label class="control-label" for="cbo_exonera_retencion">Exoneración de Retención de 4ta</label>
+                                        <label id="lblExoneracion4ta" runat="server" class="control-label" for="cbo_exonera_retencion">Exoneración de Retención de 4ta</label>
                                         <div class="controls">
                                             <asp:DropDownList ID="cbo_exonera_retencion" runat="server" ClientIDMode="Static" CssClass="span8" AutoPostBack="false"></asp:DropDownList>
                                         </div>
                                     </div>
 
-                                    <div id="divSuspension" class="control-group">
+                                    <div id="divSuspension" runat="server" class="control-group">
                                         <label class="control-label" for="rauSuspension4ta">Suspensión de 4ta categoría</label>
                                         <div class="controls">
                                             <telerik:RadAsyncUpload ID="rauSuspension4ta" runat="server" AllowedFileExtensions="doc,docx,pdf,jpg,png,bmp" AutoAddFileInputs="False" OnClientValidationFailed="validationFailed" OnClientFileUploading="validationOk" TemporaryFileExpiration="05:00:00">
@@ -1712,7 +1712,7 @@
             <div class="span12">
                 <div class="widget-box">
                     <div class="widget-title">
-		            <h5>
+                    <h5>
                         <asp:Label ID="Label2" runat="server" meta:resourcekey="lblAgregar"></asp:Label>                                                 
                     </h5>       
                     </div>
