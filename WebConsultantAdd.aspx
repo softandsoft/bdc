@@ -1592,7 +1592,7 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label id="lblImagenDNI" runat="server" class="control-label" for="rauDNI">Imagen de DNI</label>
+                                        <label class="control-label" for="rauDNI">Imagen de DNI</label>
                                         <div class="controls">
                                             <telerik:RadAsyncUpload ID="rauDNI" runat="server" AllowedFileExtensions="doc,docx,pdf,jpg,png,bmp" AutoAddFileInputs="False" OnClientValidationFailed="validationFailed" OnClientFileUploading="validationOk" TemporaryFileExpiration="05:00:00">
                                                 <Localization Select="Examinar..." Cancel="Cancelar" Remove="Eliminar" />
@@ -1608,13 +1608,13 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label id="lblExoneracion4ta" runat="server" class="control-label" for="cbo_exonera_retencion">Exoneración de Retención de 4ta</label>
+                                        <label class="control-label" for="cbo_exonera_retencion">Exoneración de Retención de 4ta</label>
                                         <div class="controls">
                                             <asp:DropDownList ID="cbo_exonera_retencion" runat="server" ClientIDMode="Static" CssClass="span8" AutoPostBack="false"></asp:DropDownList>
                                         </div>
                                     </div>
 
-                                    <div id="divSuspension" runat="server" class="control-group">
+                                    <div id="divSuspension" class="control-group">
                                         <label class="control-label" for="rauSuspension4ta">Suspensión de 4ta categoría</label>
                                         <div class="controls">
                                             <telerik:RadAsyncUpload ID="rauSuspension4ta" runat="server" AllowedFileExtensions="doc,docx,pdf,jpg,png,bmp" AutoAddFileInputs="False" OnClientValidationFailed="validationFailed" OnClientFileUploading="validationOk" TemporaryFileExpiration="05:00:00">
