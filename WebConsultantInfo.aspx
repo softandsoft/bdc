@@ -172,7 +172,7 @@
             <div class="span12">
                 <div class="widget-box">
                     <div class="widget-title">
-		                <h5><asp:Label ID="lblAgregar" runat="server" meta:resourcekey="lblAgregar"></asp:Label><asp:Label ID="lblEditar" runat="server" meta:resourcekey="lblEditar" Visible="false"></asp:Label></h5>                    
+                        <h5><asp:Label ID="lblAgregar" runat="server" meta:resourcekey="lblAgregar"></asp:Label><asp:Label ID="lblEditar" runat="server" meta:resourcekey="lblEditar" Visible="false"></asp:Label></h5>                    
 
                         <div class="buttons">
                                 <asp:Button ID="btnGuardar" runat="server" Text="Guardar" 
@@ -1518,7 +1518,7 @@
             <div class="span12">
                 <div class="widget-box">
                     <div class="widget-title">
-		            <h5>
+                    <h5>
                         <asp:Label ID="Label2" runat="server" meta:resourcekey="lblAgregar"></asp:Label>
                     </h5>       
                     </div>

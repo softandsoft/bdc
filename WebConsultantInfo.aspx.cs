@@ -156,6 +156,10 @@ public partial class WebConsultantInfo : System.Web.UI.Page
                 litSinConexion.Text = oHelper.DevuelveSinConexion();
             }
         }
+        else
+        {
+            pnlOk.Visible = false;
+        }
     }
    
     void ListarControl()
@@ -3209,9 +3213,16 @@ public partial class WebConsultantInfo : System.Web.UI.Page
         }
         else
         {
-            if (txtMoneda.Text.Trim().Length == 0)
-            {
+            double valor = 0;
 
+            try
+            {
+                valor = double.Parse(txtMoneda.Text.Trim());
+            }
+            catch { }
+
+            if (valor == 0)
+            {
                 try
                 {
                     nPago = double.Parse(txtMoneda.Text.Trim());

@@ -132,7 +132,7 @@
         <div class="span12">
             <div class="widget-box">
                 <div class="widget-title">
-		            <h5><asp:Label ID="lblAgregar" runat="server" meta:resourcekey="lblAgregar"></asp:Label><asp:Label ID="lblEditar" runat="server" meta:resourcekey="lblEditar" Visible="false"></asp:Label></h5>                    
+                    <h5><asp:Label ID="lblAgregar" runat="server" meta:resourcekey="lblAgregar"></asp:Label><asp:Label ID="lblEditar" runat="server" meta:resourcekey="lblEditar" Visible="false"></asp:Label></h5>                    
 
                      <div style="float:right">  
                         <h5 style="font-style:italic;font-weight:normal">
@@ -354,10 +354,8 @@
                             CssClass="control-label" meta:resourcekey="lblBiografia"></asp:Label>
                             <div class="controls">                           
                                  <span class="input-xxlarge uneditable-input uneditable-textarea">
-                                     <asp:TextBox ID="lblCBiografia" runat="server" TextMode="MultiLine" ReadOnly="True"  Width="95%" Rows="4"></asp:TextBox>   
-                                     
-                                    <%-- <asp:Label ID="lblCBiografia" runat="server" Text="User" >
-                                        </asp:Label>--%>
+                                        <asp:Label ID="lblCBiografia" runat="server" Text="User" >
+                                        </asp:Label>
                                     </span>      
                             </div>                        
                         </div>

@@ -14,14 +14,9 @@ using System.Threading;
 using System.Globalization;
 using Telerik.Web.UI;
 using System.Configuration;
-using System.Text;
-using Code7248.word_reader;
-using iTextSharp.text.pdf;
-using iTextSharp.text.pdf.parser;
 using LDAPService;
 
 using IT.Persistence;
-using Path = System.IO.Path;
 
 public partial class WebConsultantAdd : System.Web.UI.Page
 {
@@ -95,7 +90,21 @@ public partial class WebConsultantAdd : System.Web.UI.Page
             {
                 oTUsuario = (Usuario)Session["Usuario"];
 
-                this.RadTabConsultor.Tabs[6].Visible = oTUsuario.oPais.cod_pais_in.Equals(1);// 1 define el país de PERÚ
+                this.RadTabConsultor.Tabs[6].Visible = oTUsuario.oPais.cod_pais_in.Equals(1) || oTUsuario.oPais.cod_pais_in.Equals(22);// 1 define el país de PERÚ y 2 BOLIVIA
+
+                if (oTUsuario.oPais.cod_pais_in.Equals(1))
+                {
+                    this.lblImagenDNI.InnerText = "Imagen de DNI";
+                    this.lblExoneracion4ta.InnerText = "Exoneración de Retención de 4ta";
+                    this.divSuspension.Visible = true;
+                }
+
+                if (oTUsuario.oPais.cod_pais_in.Equals(22))
+                {
+                    this.lblImagenDNI.InnerText = "Imagen de Doc.";
+                    this.lblExoneracion4ta.InnerText = "¿Tiene factura?";
+                    this.divSuspension.Visible = false;
+                }
 
                 // El feedback del consultor solo se muestra para lo usuarios internos.
                 if (oTUsuario.tip_usu_in.Equals(Constantes.USUARIOINTERNO))
@@ -224,6 +233,8 @@ public partial class WebConsultantAdd : System.Web.UI.Page
         }
         else
         {
+            pnlOk.Visible = false;
+
             if (Session["Usuario"] == null)
             {
                 pnlActivo.Visible = false;
@@ -484,14 +495,6 @@ public partial class WebConsultantAdd : System.Web.UI.Page
         String cMensajeOk = "";
         if (Session["Usuario"] != null)
         {
-            if (Session["cMensajeOk"] != null)
-            {
-                cMensajeOk = Session["cMensajeOk"].ToString().Trim();
-                pnlOk.Visible = true;
-                litOk.Text = cMensajeOk.Trim();
-                Session.Remove("cMensajeOk");
-            }
-
             oTUsuario = (Usuario)Session["Usuario"];
 
             this.ListarDatos(oTUsuario.oIdioma.cod_idi_in);
@@ -1087,6 +1090,12 @@ public partial class WebConsultantAdd : System.Web.UI.Page
         if (oTUsuario.oPais.cod_pais_in.Equals(1))// 1 define el país de PERÚ
         {
             cboPais.SelectedValue = "1";
+            cboPais.Enabled = false;
+        }
+
+        if (oTUsuario.oPais.cod_pais_in.Equals(22))// 1 define el país de BOLIVIA
+        {
+            cboPais.SelectedValue = "22";
             cboPais.Enabled = false;
         }
 
@@ -2504,6 +2513,8 @@ public partial class WebConsultantAdd : System.Web.UI.Page
 
     protected void btnGuardar_Click(object sender, EventArgs e)
     {
+        ViewState["grabar"] = "grabar";
+
         cCarpetaContenido = ConfigurationManager.AppSettings["CartepaContenido"];
         cRutaContenido = Server.MapPath(cCarpetaContenido);
         oHelperDiccionario = new Diccionario();
@@ -2685,13 +2696,20 @@ public partial class WebConsultantAdd : System.Web.UI.Page
             {
                 if (txtMoneda.Text.Trim().Length != 0)
                 {
-                    msg += oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "Seleccionar",
-                                   oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "ConsultorMoneda"));
+                    msg += oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "Seleccionar", oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "ConsultorMoneda"));
                 }
             }
             else
             {
-                if (txtMoneda.Text.Trim().Length == 0)
+                double valor = 0;
+
+                try
+                {
+                    valor = double.Parse(txtMoneda.Text.Trim());
+                }
+                catch {}
+
+                if (valor == 0)
                 {
                     try
                     {
@@ -3036,6 +3054,54 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                 #endregion
             }
 
+            // Validación de campos de Retención SP y otras validaciones (Tipo / N° de documento, DNI, dirección, fecha de nacimiento)
+            if (oTUsuario.oPais.cod_pais_in.Equals(22))// 22 define el país de BOLIVIA
+            {
+                if (this.txtFechaNacimiento.Text == null) msg += "El ingreso de la fecha de nacimiento es obligatorio.";
+                if (String.IsNullOrEmpty(this.txtDireccion.Text.Trim())) msg += "El ingreso de la Dirección es obligatoria.";
+
+                if (this.cbo_tipo_doc.SelectedIndex == 0) msg += "La selección del Tipo de Documento es obligatoria.";
+                if (String.IsNullOrEmpty(this.txt_nro_doc.Text.Trim())) msg += "El ingreso del N° de Documento es obligatorio.";
+
+                //switch (this.cbo_tipo_doc.SelectedItem.Value)
+                //{
+                //    case "9": if (this.txt_nro_doc.Text.Trim().Length != 6 && this.txt_nro_doc.Text.Trim().Length != 7) msg += "La longitud del N° de documento debe ser de 6 ó 7 dígitos."; break; // DNI
+                //}
+
+                string fileDNI = ViewState["vws_fileDNI"] != null ? ViewState["vws_fileDNI"].ToString() : string.Empty;
+                string fileSuspension4ta = ViewState["vws_fileSuspension4ta"] != null ? ViewState["vws_fileSuspension4ta"].ToString() : string.Empty;
+
+                //if (this.cbo_tipo_doc.SelectedItem.Value.Equals("1")) msg += String.IsNullOrEmpty(fileDNI) ? "La adjunción del DNI es obligatoria." : string.Empty;
+
+                if (this.cbo_exonera_retencion.SelectedIndex == 0) msg += "La selección de si el consultor tiene factura o no es obligatoria.";
+                //if (this.cbo_exonera_retencion.SelectedItem.Value.Equals("1")) msg += String.IsNullOrEmpty(fileSuspension4ta) ? "La adjunción de la Suspensión de 4ta Categoría es obligatoria." : string.Empty;
+
+                #region Validación de cuentas
+
+                List<IT.Domain.ConsultorCuenta> cuentas = new List<IT.Domain.ConsultorCuenta>();
+                List<string> lstCuentas = new List<string>();
+
+                for (int i = 0; i < this.gvwCuentas.Items.Count; i++)
+                {
+                    Label lblNro = (Label)this.gvwCuentas.Items[i].FindControl("lblNro");
+                    DropDownList cbo_banco = (DropDownList)this.gvwCuentas.Items[i].FindControl("cbo_banco");
+                    DropDownList cbo_moneda = (DropDownList)this.gvwCuentas.Items[i].FindControl("cbo_moneda");
+                    RadComboBox cbo_tipo_cuenta = (RadComboBox)this.gvwCuentas.Items[i].FindControl("cbo_tipo_cuenta");
+                    TextBox txt_nro_cuenta = (TextBox)this.gvwCuentas.Items[i].FindControl("txt_nro_cuenta");
+
+                    if (cbo_banco.SelectedIndex == 0) { msg += "La selección del Banco es obligatoria en la fila " + (i + 1).ToString(); }
+                    if (cbo_moneda.SelectedIndex == 0) { msg += "La selección de la Moneda es obligatoria en la fila " + (i + 1).ToString(); }
+                    if (String.IsNullOrEmpty(cbo_tipo_cuenta.Text.Trim())) { msg += "El ingreso del Tipo de Cuenta es obligatorio en la fila " + (i + 1).ToString(); }
+                    if (String.IsNullOrEmpty(txt_nro_cuenta.Text.Trim())) { msg += "El ingreso del N° de Cuenta es obligatorio en la fila " + (i + 1).ToString(); }
+
+                    lstCuentas.Add(txt_nro_cuenta.Text.Trim());
+                }
+
+                if (lstCuentas.Distinct().Count() != lstCuentas.Count) msg += "Los N° de Cuenta del Consultor no deben repetirse.";
+
+                #endregion
+            }
+
             // Skills & Education
 
             if (!oTUsuario.Administrador)
@@ -3188,7 +3254,7 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                     string CUSPP = string.Empty;
                     string DNI = string.Empty;
 
-                    if (oTUsuario.oPais.cod_pais_in.Equals(1))// 1 define el país de PERÚ
+                    if (oTUsuario.oPais.cod_pais_in.Equals(1) || oTUsuario.oPais.cod_pais_in.Equals(22)) // 1 define el país de PERÚ y 22 define el país de BOLIVIA
                     {
                         string fileDNI = ViewState["vws_fileDNI"] != null ? ViewState["vws_fileDNI"].ToString() : string.Empty;
                         string fileSuspension4ta = ViewState["vws_fileSuspension4ta"] != null ? ViewState["vws_fileSuspension4ta"].ToString() : string.Empty;
@@ -3335,8 +3401,7 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                             cod_per_in = nCodigo,
                             nom_condoc_vc = txtTitulo.Text.Trim(),
                             des_condoc_vc = lblDescarga.Text.Trim(),
-                            ori_condoc_vc = lblOriginal.Text.Trim(),
-                            Contenido = ObtenerContenidoArchivo(Path.Combine(cRutaContenido, lblDescarga.Text.Trim()))
+                            ori_condoc_vc = lblOriginal.Text.Trim()
                         });
                     }
 
@@ -3442,7 +3507,7 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                     string CUSPP = string.Empty;
                     string DNI = string.Empty;
 
-                    if (oTUsuario.oPais.cod_pais_in.Equals(1))// 1 define el país de PERÚ
+                    if (oTUsuario.oPais.cod_pais_in.Equals(1) || oTUsuario.oPais.cod_pais_in.Equals(22))// 1 define el país de PERÚ y 22 Bolivia
                     {
                         string fileDNI = ViewState["vws_fileDNI"] != null ? ViewState["vws_fileDNI"].ToString() : string.Empty;
                         string fileSuspension4ta = ViewState["vws_fileSuspension4ta"] != null ? ViewState["vws_fileSuspension4ta"].ToString() : string.Empty;
@@ -3606,8 +3671,7 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                             cod_per_in = nCodigo,
                             nom_condoc_vc = txtTitulo.Text.Trim(),
                             des_condoc_vc = lblDescarga.Text.Trim(),
-                            ori_condoc_vc = lblOriginal.Text.Trim(),
-                            Contenido = ObtenerContenidoArchivo(Path.Combine(cRutaContenido, lblDescarga.Text.Trim()))
+                            ori_condoc_vc = lblOriginal.Text.Trim()
                         });
                     }
 
@@ -3654,49 +3718,35 @@ public partial class WebConsultantAdd : System.Web.UI.Page
                         });
                     }
 
-                    cMensajeOk += oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "ConsultorE");
-                    pnlOk.Visible = true;
-                    litOk.Text = cMensajeOk.Trim();
+                    //if (Session["grabar"] != null)
+                    //{
+                    //    Session.Remove("grabar");
+
+                    //    cMensajeOk += oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "ConsultorE");
+                    //    pnlOk.Visible = true;
+                    //    litOk.Text = cMensajeOk.Trim();                        
+                    //}                        
+
+                    if (cMensajeOk == string.Empty)
+                        cMensajeOk += oHelperDiccionario.DevolverMensaje(Thread.CurrentThread.CurrentCulture.Name, "ConsultorE");    
+                    
+                    Session["cMensajeOk"] = cMensajeOk;
+
+                    if (ViewState["grabar"] == "grabar")
+                    {
+                        litOk.Text = cMensajeOk.Trim();
+                        pnlOk.Visible = true;
+
+                        ViewState["grabar"] = string.Empty;
+                    }
+                    else
+                    {
+                        pnlOk.Visible = false;
+                    }
 
                     this.ObtenerDatosDeConsultor(nCodigo);
                 }
             }
-        }
-    }
-
-    private string ObtenerContenidoArchivo(string archivo)
-    {
-        var archivoPathFile = string.Format("{0}\\{1}{2}", Path.GetDirectoryName(archivo),
-                   Path.GetFileNameWithoutExtension(archivo), Path.GetExtension(archivo).ToLower());
-
-        try
-        {
-            var textoArchivo = string.Empty;
-            if (Path.GetExtension(archivoPathFile).ToLowerInvariant() == ".pdf")
-            {
-                using (PdfReader reader = new PdfReader(archivoPathFile))
-                {
-                    StringBuilder builder = new StringBuilder();
-
-                    for (int i = 1; i <= reader.NumberOfPages; i++)
-                    {
-                        builder.AppendLine(PdfTextExtractor.GetTextFromPage(reader, i));
-                    }
-
-                    textoArchivo = builder.ToString();
-                }
-            }
-            else
-            {
-                TextExtractor extractor = new TextExtractor(archivoPathFile);
-                textoArchivo = extractor.ExtractText();
-            }
-
-            return textoArchivo;
-        }
-        catch (Exception)
-        {
-            return string.Empty;
         }
     }
 

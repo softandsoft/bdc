@@ -209,7 +209,7 @@ public partial class WebConsultantInd : System.Web.UI.Page
                     lblCTelefono2.Text = oConsultor.tel2_con_vc;
                     lblCLinked.Text = oConsultor.link_con_vc;
                     lblCCorreo.Text = oConsultor.email_per_vc;
-                    lblCBiografia.Text = oConsultor.bio_con_vc.Trim();
+                    lblCBiografia.Text = oConsultor.bio_con_vc.Trim().Replace("\n", "<br/>") + "&nbsp;";
 
 
                     chkCertifico.Checked = oConsultor.cer_exp_con_bo;
